@@ -1,0 +1,1 @@
+I need to test using trust-dns as a replacement for resolv-rs in danish-rust. I can't use resolv-rs in danish-rust in non-libc environments. The purpose of this repository is to experiment with a basic TLSA querier using trust-dns that can be compiled against MUSL for OpenWRT.
