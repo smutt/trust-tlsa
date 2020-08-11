@@ -1,0 +1,8 @@
+[package]
+name = "trust-tlsa"
+version = "0.0.1"
+authors = ["Andrew McConachie <andrew@depht.com>"]
+edition = "2020"
+
+[dependencies]
+trust-dns-client = { version = "*", default-features = false }
