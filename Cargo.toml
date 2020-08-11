@@ -2,7 +2,11 @@
 name = "trust-tlsa"
 version = "0.0.1"
 authors = ["Andrew McConachie <andrew@depht.com>"]
-edition = "2020"
+edition = "2018"
 
 [dependencies]
 trust-dns-client = { version = "*", default-features = false }
+ctrlc = { version = "3.0", features = ["termination"] }
+env_logger = "^0.6.1"
+log = "^0.4.0"
+structopt = {version = "^0.2", default-features = false }
