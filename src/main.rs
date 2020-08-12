@@ -10,8 +10,13 @@ All rights reserved.
 use structopt::StructOpt;
 //use std::{iter, time, thread};
 //use std::time::{Duration, SystemTime};
-
-
+use std::str::FromStr;
+//use std::net::Ipv4Addr;
+//use trust_dns_proto::DnsStreamHandle;
+use trust_dns_client::client::{Client, SyncClient};
+use trust_dns_client::udp::UdpClientConnection;
+use trust_dns_client::op::DnsResponse;
+use trust_dns_client::rr::{DNSClass, Name, RData, Record, RecordType};
 
 /////////////
 // STRUCTS //
@@ -28,7 +33,6 @@ struct Opt {
 ///////////////
 
 
-
 /////////////////////////////
 // BEGIN PROGRAM EXECUTION //
 /////////////////////////////
@@ -42,7 +46,31 @@ fn main() {
         std::process::exit(0);
     }).expect("Error setting Ctrl-C handler");
 
-    println!("{}",cli_opts.domain.to_uppercase());
+    let dn: String = "_443._tcp.".to_owned() + &cli_opts.domain.to_lowercase() + ".";
+    println!("{} {}", "querying", dn);
+
+    let address = "8.8.8.8:53".parse().unwrap();
+    let conn = UdpClientConnection::new(address).unwrap();
+    let client = SyncClient::new(conn);
+
+    let qstr = Name::from_str(&dn).unwrap();
+    let response: DnsResponse = client.query(&qstr, DNSClass::IN, RecordType::TLSA).unwrap();
+    let answers: &[Record] = response.answers();
+
+    if answers.len() > 0 {
+        for ans in answers.iter() {
+            if let RData::TLSA(rr) = ans.rdata() {
+                println!("{} {:?}", "\ncert_usage:", rr.cert_usage());
+                println!("{} {:?}", "selector:", rr.selector());
+                println!("{} {:?}", "matching:", rr.matching());
+                println!("{} {:?}", "hash:", rr.cert_data());
+            } else {
+                assert!(false, "unexpected result")
+            }
+        }
+    }else{
+        println!("{}", "No records found");
+    }
 
     debug!("Finish");
 }
